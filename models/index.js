@@ -36,6 +36,7 @@ try {
   // Model dosyalarını yükle
   const Report = require('./Report')(sequelize);
   const User = require('./User')(sequelize);
+  const Inventory = require('./Inventory')(sequelize);
 
   // İlişkileri tanımla
   Report.belongsTo(User, { foreignKey: 'userId' });
@@ -44,6 +45,7 @@ try {
   // Modelleri dışa aktar
   db.Report = Report;
   db.User = User;
+  db.Inventory = Inventory;
   db.sequelize = sequelize;
   db.Sequelize = Sequelize;
 
