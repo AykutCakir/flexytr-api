@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Task, TaskHistory, User } = require('../db');
+const { Task, TaskHistory, User } = require('../models');
 
 // Tüm görevleri getir
 router.get('/', async (req, res) => {
@@ -100,7 +100,7 @@ router.put('/:id', async (req, res) => {
       // Geçiş geçerli mi kontrol et
       if (!validTransitions[task.status]?.includes(req.body.status)) {
         return res.status(400).json({ 
-          error: `${getStatusText(task.status)} durumundan ${getStatusText(req.body.status)} durumuna geçiş yapılamaz` 
+          error: `${getStatusText(task.status)} durumundan ${getStatusText(req.body.status)} durumuna geçiş yapılamaz`
         });
       }
 
@@ -213,4 +213,4 @@ router.get('/:id/history', async (req, res) => {
   }
 });
 
-module.exports = router; 
+module.exports = router;
