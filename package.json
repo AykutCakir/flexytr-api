@@ -10,10 +10,12 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.9",
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "framer-motion": "^12.4.7",
+    "jsonwebtoken": "^9.0.0",
     "pdfkit": "^0.16.0",
     "pg": "^8.13.3",
     "pg-hstore": "^2.3.4",
@@ -30,6 +32,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.17",
+    "nodemon": "^2.0.22",
     "postcss": "^8.4.35",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-import": "^16.1.0",
@@ -37,7 +40,9 @@
     "tailwindcss": "^3.4.1"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "client": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
