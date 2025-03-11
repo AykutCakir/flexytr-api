@@ -89,7 +89,19 @@ module.exports = (sequelize) => {
 
   // Instance method to check password
   User.prototype.checkPassword = async function(password) {
-    return await bcrypt.compare(password, this.password);
+    try {
+      console.log('Şifre karşılaştırması yapılıyor...');
+      if (!this.password) {
+        console.log('Kullanıcının şifresi yok!');
+        return false;
+      }
+      const result = await bcrypt.compare(password, this.password);
+      console.log('Şifre karşılaştırma sonucu:', result);
+      return result;
+    } catch (error) {
+      console.error('Şifre karşılaştırma hatası:', error);
+      throw error;
+    }
   };
 
   return User;
