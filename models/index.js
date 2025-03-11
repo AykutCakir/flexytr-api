@@ -12,7 +12,19 @@ const db = {};
 let sequelize;
 try {
   if (config.use_env_variable) {
-    sequelize = new Sequelize(process.env[config.use_env_variable], config);
+    const dbUrl = process.env[config.use_env_variable];
+    console.log('Veritabanı URL:', dbUrl);
+    if (!dbUrl) {
+      throw new Error('DATABASE_URL environment variable is not set');
+    }
+    sequelize = new Sequelize(dbUrl, {
+      ...config,
+      logging: console.log,
+      retry: {
+        max: 3,
+        match: [/Deadlock/i, /Connection lost/i, /ECONNREFUSED/],
+      }
+    });
   } else {
     sequelize = new Sequelize(config.database, config.username, config.password, {
       ...config,
