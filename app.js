@@ -14,6 +14,11 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json());
 
+// Test endpoint'i
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'API bağlantısı başarılı' });
+});
+
 // Routes
 app.use('/api/sales', salesRouter);
 app.use('/api/companies', companiesRouter);
