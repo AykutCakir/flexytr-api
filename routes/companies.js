@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Company } = require('../db');
+const { Company } = require('../models');
 
 // Tüm firmaları getir
 router.get('/', async (req, res) => {
