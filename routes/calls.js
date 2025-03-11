@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Call, User } = require('../db');
+const { Call, User } = require('../models');
 
 // Tüm çağrıları getir
 router.get('/', async (req, res) => {
