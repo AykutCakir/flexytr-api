@@ -28,11 +28,7 @@
     }
   },
   "production": {
-    "username": "dosofter_aykutc",
-    "password": "Black61502",
-    "database": "dosofter_envanter",
-    "host": "sql.athena.domainhizmetleri.com",
-    "port": 1433,
+    "use_env_variable": "DATABASE_URL",
     "dialect": "mssql",
     "dialectOptions": {
       "options": {
