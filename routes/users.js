@@ -71,10 +71,19 @@ router.get('/', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log('Login denemesi başladı:', { email });
+    console.log('Login denemesi başladı:', { email, body: req.body });
+
+    if (!email || !password) {
+      console.log('Email veya şifre eksik:', { email, passwordExists: !!password });
+      return res.status(400).json({ error: 'Email ve şifre gerekli' });
+    }
 
     // Kullanıcıyı e-posta ile bul
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ 
+      where: { email },
+      attributes: ['id', 'email', 'password', 'ad', 'soyad', 'rol', 'durum']
+    });
+
     console.log('Kullanıcı arama sonucu:', { 
       bulundu: !!user, 
       email,
@@ -82,7 +91,8 @@ router.post('/login', async (req, res) => {
         id: user.id,
         email: user.email,
         rol: user.rol,
-        durum: user.durum
+        durum: user.durum,
+        passwordExists: !!user.password
       } : null
     });
 
@@ -93,12 +103,20 @@ router.post('/login', async (req, res) => {
 
     // Şifre kontrolü
     console.log('Şifre kontrolü başlıyor...');
-    const isValidPassword = await user.checkPassword(password);
-    console.log('Şifre kontrolü sonucu:', { isValidPassword });
+    try {
+      const isValidPassword = await user.checkPassword(password);
+      console.log('Şifre kontrolü sonucu:', { isValidPassword });
 
-    if (!isValidPassword) {
-      console.log('Şifre hatalı:', email);
-      return res.status(401).json({ error: 'E-posta veya şifre hatalı' });
+      if (!isValidPassword) {
+        console.log('Şifre hatalı:', email);
+        return res.status(401).json({ error: 'E-posta veya şifre hatalı' });
+      }
+    } catch (passwordError) {
+      console.error('Şifre kontrolü sırasında hata:', passwordError);
+      return res.status(500).json({ 
+        error: 'Şifre kontrolü sırasında hata oluştu',
+        details: process.env.NODE_ENV === 'development' ? passwordError.message : undefined
+      });
     }
 
     // Kullanıcı durumunu kontrol et
@@ -109,7 +127,12 @@ router.post('/login', async (req, res) => {
 
     // Son giriş zamanını güncelle
     console.log('Son giriş zamanı güncelleniyor...');
-    await user.update({ songiris: new Date() });
+    try {
+      await user.update({ songiris: new Date() });
+    } catch (updateError) {
+      console.error('Son giriş zamanı güncellenirken hata:', updateError);
+      // Bu hatayı görmezden gelebiliriz, login işlemine devam edebiliriz
+    }
 
     // JWT token oluştur
     console.log('JWT token oluşturuluyor...');
@@ -146,7 +169,8 @@ router.post('/login', async (req, res) => {
       error: error.message,
       stack: error.stack,
       name: error.name,
-      code: error.code
+      code: error.code,
+      body: req.body
     });
     res.status(500).json({ 
       error: 'Sunucu hatası',
