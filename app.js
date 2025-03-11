@@ -5,7 +5,6 @@ const salesRouter = require('./routes/sales');
 const companiesRouter = require('./routes/companies');
 const inventoryRouter = require('./routes/inventory');
 const { sequelize } = require('./models');
-// ... diğer importlar
 
 const app = express();
 
@@ -27,7 +26,6 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/tasks', require('./routes/tasks'));
 app.use('/api/calls', require('./routes/calls'));
 app.use('/api/reports', require('./routes/reports'));
-// ... diğer route'lar
 
 // Veritabanını başlat
 sequelize.sync().catch(console.error);
@@ -39,8 +37,16 @@ app.listen(PORT, () => {
 
 // Error handling
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Sunucu hatası oluştu' });
+  console.error('Hata detayları:', {
+    message: err.message,
+    stack: err.stack,
+    details: err
+  });
+  res.status(500).json({ 
+    error: 'Sunucu hatası oluştu',
+    message: err.message,
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  });
 });
 
 module.exports = app; 
