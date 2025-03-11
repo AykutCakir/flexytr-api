@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const salesRouter = require('./routes/sales');
 const companiesRouter = require('./routes/companies');
 const inventoryRouter = require('./routes/inventory');
-const { initializeDatabase } = require('./db');
+const { sequelize } = require('./models');
 // ... diğer importlar
 
 const app = express();
@@ -25,7 +25,7 @@ app.use('/api/reports', require('./routes/reports'));
 // ... diğer route'lar
 
 // Veritabanını başlat
-initializeDatabase().catch(console.error);
+sequelize.sync().catch(console.error);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
