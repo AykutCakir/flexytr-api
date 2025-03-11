@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Sale, Inventory, User, Company } = require('../db');
-const { sequelize } = require('../db');
+const { Sale, Inventory, User, Company, sequelize } = require('../models');
 const PDFDocument = require('pdfkit');
 const { Op } = require('sequelize');
 
