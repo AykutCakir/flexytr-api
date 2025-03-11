@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Inventory } = require('../db');
+const { Inventory } = require('../models');
 
 // Tüm envanter ürünlerini getir
 router.get('/', async (req, res) => {
