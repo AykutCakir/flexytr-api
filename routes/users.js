@@ -80,8 +80,9 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'E-posta veya şifre hatalı' });
     }
 
-    // Şifre kontrolü - GEÇİCİ OLARAK DÜZ METİN KARŞILAŞTIRMA YAPIYORUZ
-    if (password !== 'asdasd') {
+    // Şifre kontrolü
+    const isValidPassword = await user.checkPassword(password);
+    if (!isValidPassword) {
       console.log('Şifre hatalı:', email);
       return res.status(401).json({ error: 'E-posta veya şifre hatalı' });
     }
