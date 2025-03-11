@@ -1,0 +1,45 @@
+{
+  "development": {
+    "username": "dosofter_aykutc",
+    "password": "Black61502",
+    "database": "dosofter_envanter",
+    "host": "sql.athena.domainhizmetleri.com",
+    "port": 1433,
+    "dialect": "mssql",
+    "dialectOptions": {
+      "options": {
+        "encrypt": false,
+        "trustServerCertificate": true,
+        "enableArithAbort": true
+      }
+    }
+  },
+  "test": {
+    "username": "yuksel",
+    "password": "yuksel123",
+    "database": "yukselproje_test",
+    "host": "localhost",
+    "dialect": "mssql",
+    "dialectOptions": {
+      "options": {
+        "encrypt": false,
+        "trustServerCertificate": true
+      }
+    }
+  },
+  "production": {
+    "username": "dosofter_aykutc",
+    "password": "Black61502",
+    "database": "dosofter_envanter",
+    "host": "sql.athena.domainhizmetleri.com",
+    "port": 1433,
+    "dialect": "mssql",
+    "dialectOptions": {
+      "options": {
+        "encrypt": false,
+        "trustServerCertificate": true,
+        "enableArithAbort": true
+      }
+    }
+  }
+}
