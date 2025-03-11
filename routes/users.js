@@ -71,17 +71,31 @@ router.get('/', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log('Login denemesi:', { email });
+    console.log('Login denemesi başladı:', { email });
 
     // Kullanıcıyı e-posta ile bul
     const user = await User.findOne({ where: { email } });
+    console.log('Kullanıcı arama sonucu:', { 
+      bulundu: !!user, 
+      email,
+      userDetails: user ? {
+        id: user.id,
+        email: user.email,
+        rol: user.rol,
+        durum: user.durum
+      } : null
+    });
+
     if (!user) {
       console.log('Kullanıcı bulunamadı:', email);
       return res.status(401).json({ error: 'E-posta veya şifre hatalı' });
     }
 
     // Şifre kontrolü
+    console.log('Şifre kontrolü başlıyor...');
     const isValidPassword = await user.checkPassword(password);
+    console.log('Şifre kontrolü sonucu:', { isValidPassword });
+
     if (!isValidPassword) {
       console.log('Şifre hatalı:', email);
       return res.status(401).json({ error: 'E-posta veya şifre hatalı' });
@@ -89,14 +103,16 @@ router.post('/login', async (req, res) => {
 
     // Kullanıcı durumunu kontrol et
     if (user.durum !== 'aktif') {
-      console.log('Hesap aktif değil:', email);
+      console.log('Hesap aktif değil:', { email, durum: user.durum });
       return res.status(401).json({ error: 'Hesabınız aktif değil' });
     }
 
     // Son giriş zamanını güncelle
+    console.log('Son giriş zamanı güncelleniyor...');
     await user.update({ songiris: new Date() });
 
     // JWT token oluştur
+    console.log('JWT token oluşturuluyor...');
     const token = jwt.sign(
       { 
         userId: user.id,
@@ -107,7 +123,11 @@ router.post('/login', async (req, res) => {
       { expiresIn: '1h' }
     );
 
-    console.log('Login başarılı:', email);
+    console.log('Login başarılı:', {
+      email,
+      userId: user.id,
+      rol: user.rol
+    });
 
     // Kullanıcı bilgilerini ve token'ı gönder
     res.json({
@@ -122,8 +142,17 @@ router.post('/login', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Login hatası:', error);
-    res.status(500).json({ error: 'Sunucu hatası', details: error.message });
+    console.error('Login hatası detayları:', {
+      error: error.message,
+      stack: error.stack,
+      name: error.name,
+      code: error.code
+    });
+    res.status(500).json({ 
+      error: 'Sunucu hatası',
+      message: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 });
 
