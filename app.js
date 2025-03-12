@@ -18,44 +18,99 @@ async function startServer() {
       res.json({ message: 'API bağlantısı başarılı' });
     });
 
-    // Veritabanını başlat
-    console.log('Veritabanı başlatılıyor...');
-    const db = await initializeDatabase;
-    console.log('Veritabanı başlatıldı');
+    // Sunucuyu başlat
+    const PORT = process.env.PORT || 10000;
+    const server = app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server ${PORT} portunda çalışıyor (${process.env.NODE_ENV} modu)`);
+    });
 
-    // Routes
-    app.use('/api/users', require('./routes/users'));
-    app.use('/api/reports', require('./routes/reports'));
-    app.use('/api/tasks', require('./routes/tasks'));
-    app.use('/api/calls', require('./routes/calls'));
-    app.use('/api/inventory', require('./routes/inventory'));
-    app.use('/api/sales', require('./routes/sales'));
-    app.use('/api/companies', require('./routes/companies'));
+    // Veritabanını başlatmayı dene
+    try {
+      console.log('Veritabanı başlatılıyor...');
+      const db = await initializeDatabase;
+      console.log('Veritabanı başlatıldı');
+
+      // Routes
+      const usersRouter = require('./routes/users');
+      const reportsRouter = require('./routes/reports');
+      const tasksRouter = require('./routes/tasks');
+      const callsRouter = require('./routes/calls');
+      const inventoryRouter = require('./routes/inventory');
+      const salesRouter = require('./routes/sales');
+      const companiesRouter = require('./routes/companies');
+
+      // Route'ları tanımla
+      app.use('/api/users', usersRouter);
+      app.use('/api/reports', reportsRouter);
+      app.use('/api/tasks', tasksRouter);
+      app.use('/api/calls', callsRouter);
+      app.use('/api/inventory', inventoryRouter);
+      app.use('/api/sales', salesRouter);
+      app.use('/api/companies', companiesRouter);
+    } catch (dbError) {
+      console.error('Veritabanı başlatma hatası:', {
+        message: dbError.message,
+        stack: dbError.stack,
+        details: dbError
+      });
+
+      // Veritabanı olmadan çalışacak endpoint'ler
+      app.use('/api/users', (req, res) => {
+        res.status(503).json({ 
+          error: 'Veritabanı bağlantısı kurulamadı',
+          message: 'Sistem bakımda, lütfen daha sonra tekrar deneyin'
+        });
+      });
+    }
+
+    // 404 handler
+    app.use((req, res, next) => {
+      console.log('404 - Route bulunamadı:', {
+        path: req.path,
+        method: req.method,
+        body: req.body,
+        query: req.query
+      });
+      res.status(404).json({ 
+        error: 'İstenen sayfa bulunamadı',
+        path: req.path,
+        method: req.method
+      });
+    });
 
     // Error handling
     app.use((err, req, res, next) => {
       console.error('Hata detayları:', {
         message: err.message,
         stack: err.stack,
-        details: err
+        path: req.path,
+        method: req.method,
+        body: req.body,
+        query: req.query
       });
-      res.status(500).json({ 
+      res.status(err.status || 500).json({ 
         error: 'Sunucu hatası oluştu',
         message: err.message,
         stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
       });
     });
 
-    // Sunucuyu başlat
-    const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => {
-      console.log(`Server ${PORT} portunda çalışıyor`);
+    // Graceful shutdown
+    process.on('SIGTERM', () => {
+      console.log('SIGTERM sinyali alındı. Sunucu kapatılıyor...');
+      server.close(() => {
+        console.log('Sunucu kapatıldı');
+        process.exit(0);
+      });
     });
+
+    return server;
 
   } catch (error) {
     console.error('Sunucu başlatma hatası:', {
       message: error.message,
-      stack: error.stack
+      stack: error.stack,
+      details: error
     });
     process.exit(1);
   }
