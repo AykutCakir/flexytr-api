@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { db } = require('../models');
-const { User } = db;
 
 // Login route
 router.post('/login', async (req, res) => {
@@ -11,6 +10,12 @@ router.post('/login', async (req, res) => {
       email: req.body.email,
       body: req.body
     });
+
+    const User = db.User;
+    if (!User) {
+      console.error('User modeli bulunamadı');
+      return res.status(500).json({ error: 'Sunucu hatası oluştu' });
+    }
 
     const user = await User.findOne({
       where: { email: req.body.email }
