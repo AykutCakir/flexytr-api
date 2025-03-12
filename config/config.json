@@ -10,8 +10,16 @@
       "options": {
         "encrypt": false,
         "trustServerCertificate": true,
-        "enableArithAbort": true
+        "enableArithAbort": true,
+        "requestTimeout": 30000,
+        "connectTimeout": 30000
       }
+    },
+    "pool": {
+      "max": 5,
+      "min": 0,
+      "acquire": 30000,
+      "idle": 10000
     }
   },
   "test": {
@@ -28,14 +36,26 @@
     }
   },
   "production": {
-    "use_env_variable": "DATABASE_URL",
+    "username": "dosofter_aykutc",
+    "password": "Black61502",
+    "database": "dosofter_envanter",
+    "host": "sql.athena.domainhizmetleri.com",
+    "port": 1433,
     "dialect": "mssql",
     "dialectOptions": {
       "options": {
         "encrypt": false,
         "trustServerCertificate": true,
-        "enableArithAbort": true
+        "enableArithAbort": true,
+        "requestTimeout": 30000,
+        "connectTimeout": 30000
       }
+    },
+    "pool": {
+      "max": 5,
+      "min": 0,
+      "acquire": 30000,
+      "idle": 10000
     }
   }
 }
