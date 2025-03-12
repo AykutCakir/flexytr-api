@@ -1,29 +1,26 @@
 {
   "development": {
-    "username": "dosofter_aykutc",
-    "password": "your_password",
+    "username": "admin",
+    "password": "your_aws_password",
     "database": "dosofter_envanter",
-    "host": "sql.athena.domainhizmetleri.com",
+    "host": "flexytr-db.cjm0e422w027.eu-north-1.rds.amazonaws.com",
     "dialect": "mssql",
     "port": 1433,
     "dialectOptions": {
       "options": {
-        "encrypt": false,
+        "encrypt": true,
         "trustServerCertificate": true,
         "enableArithAbort": true,
         "requestTimeout": 300000,
         "connectTimeout": 300000,
-        "packetSize": 32768,
-        "validateBulkLoadParameters": true,
-        "rowCollectionOnRequestCompletion": true
+        "ssl": true
       }
     },
     "pool": {
       "max": 5,
       "min": 0,
       "acquire": 300000,
-      "idle": 10000,
-      "evict": 60000
+      "idle": 10000
     },
     "retry": {
       "max": 5
@@ -43,30 +40,27 @@
     }
   },
   "production": {
-    "username": "dosofter_aykutc",
-    "password": "your_password",
+    "username": "admin",
+    "password": "your_aws_password",
     "database": "dosofter_envanter",
-    "host": "sql.athena.domainhizmetleri.com",
+    "host": "flexytr-db.cjm0e422w027.eu-north-1.rds.amazonaws.com",
     "dialect": "mssql",
     "port": 1433,
     "dialectOptions": {
       "options": {
-        "encrypt": false,
+        "encrypt": true,
         "trustServerCertificate": true,
         "enableArithAbort": true,
         "requestTimeout": 300000,
         "connectTimeout": 300000,
-        "packetSize": 32768,
-        "validateBulkLoadParameters": true,
-        "rowCollectionOnRequestCompletion": true
+        "ssl": true
       }
     },
     "pool": {
       "max": 5,
       "min": 0,
       "acquire": 300000,
-      "idle": 10000,
-      "evict": 60000
+      "idle": 10000
     },
     "retry": {
       "max": 5
