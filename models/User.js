@@ -54,6 +54,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'User',
+    tableName: 'Users',
+    schema: 'dbo',
     hooks: {
       beforeCreate: async (user) => {
         if (user.password) {
