@@ -47,15 +47,25 @@ async function startServer() {
     });
 
     // Sunucuyu başlat
-    const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => {
-      console.log(`Server ${PORT} portunda çalışıyor`);
+    const PORT = process.env.PORT || 10000;
+    const server = app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server ${PORT} portunda çalışıyor (${process.env.NODE_ENV} modu)`);
+    });
+
+    // Graceful shutdown
+    process.on('SIGTERM', () => {
+      console.log('SIGTERM sinyali alındı. Sunucu kapatılıyor...');
+      server.close(() => {
+        console.log('Sunucu kapatıldı');
+        process.exit(0);
+      });
     });
 
   } catch (error) {
     console.error('Sunucu başlatma hatası:', {
       message: error.message,
-      stack: error.stack
+      stack: error.stack,
+      details: error
     });
     process.exit(1);
   }
