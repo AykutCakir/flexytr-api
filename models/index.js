@@ -1,103 +1,110 @@
-'use strict';
-
 const fs = require('fs');
 const path = require('path');
-const Sequelize = require('sequelize');
+const { Sequelize, DataTypes } = require('sequelize');
 const process = require('process');
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.json')[env];
 const db = {};
 
+console.log('Veritabanı bağlantısı başlatılıyor...', {
+  env,
+  username: config.username,
+  database: config.database,
+  port: config.port,
+  host: config.host,
+});
+
 let sequelize;
-let retryCount = 0;
-const maxRetries = 5;
-
-async function initializeDatabase() {
-  try {
-    console.log('Veritabanı bağlantısı başlatılıyor...', {
-      host: config.host,
-      port: config.port,
-      database: config.database,
-      username: config.username,
-      env: env
-    });
-    
-    sequelize = new Sequelize(config.database, config.username, config.password, {
-      host: config.host,
-      port: config.port,
-      dialect: config.dialect,
-      dialectOptions: config.dialectOptions,
-      pool: config.pool,
-      logging: (msg) => console.log('Sequelize Log:', msg)
-    });
-
-    // Bağlantıyı test et
-    await sequelize.authenticate();
-    console.log('Veritabanı bağlantısı başarılı.');
-
-    // Model dosyalarını yükle
-    const Report = require('./Report')(sequelize);
-    const User = require('./User')(sequelize);
-    const Inventory = require('./Inventory')(sequelize);
-    const Task = require('./Task')(sequelize);
-    const TaskHistory = require('./TaskHistory')(sequelize);
-    const Call = require('./Call')(sequelize);
-
-    // İlişkileri tanımla
-    Report.belongsTo(User, { foreignKey: 'userId' });
-    User.hasMany(Report, { foreignKey: 'userId' });
-
-    Task.belongsTo(User, { as: 'assignedUser', foreignKey: 'assignedUserId' });
-    Task.belongsTo(User, { as: 'creator', foreignKey: 'creatorId' });
-    User.hasMany(Task, { as: 'assignedTasks', foreignKey: 'assignedUserId' });
-    User.hasMany(Task, { as: 'createdTasks', foreignKey: 'creatorId' });
-    Task.hasMany(TaskHistory, { foreignKey: 'taskId' });
-    TaskHistory.belongsTo(Task, { foreignKey: 'taskId' });
-
-    Call.belongsTo(User, { foreignKey: 'userId' });
-    User.hasMany(Call, { foreignKey: 'userId' });
-
-    // Modelleri dışa aktar
-    db.Report = Report;
-    db.User = User;
-    db.Inventory = Inventory;
-    db.Task = Task;
-    db.TaskHistory = TaskHistory;
-    db.Call = Call;
-    db.sequelize = sequelize;
-    db.Sequelize = Sequelize;
-
-    // Tabloları senkronize et
-    console.log('Tablolar senkronize ediliyor...');
-    await sequelize.sync();
-    console.log('Veritabanı tabloları senkronize edildi.');
-
-    return db;
-  } catch (error) {
-    console.error('Veritabanı başlatma hatası:', {
-      error: error.message,
-      stack: error.stack,
-      retryCount,
-      config: {
-        host: config.host,
-        port: config.port,
-        database: config.database,
-        username: config.username,
-        env: env
+if (config.use_env_variable) {
+  sequelize = new Sequelize(process.env[config.use_env_variable], config);
+} else {
+  sequelize = new Sequelize(
+    config.database,
+    config.username,
+    config.password,
+    {
+      ...config,
+      define: {
+        schema: 'dbo',
+        freezeTableName: true
+      },
+      dialectOptions: {
+        options: {
+          encrypt: true,
+          trustServerCertificate: true,
+          enableArithAbort: true,
+          requestTimeout: 300000,
+          connectTimeout: 300000
+        }
       }
-    });
-
-    if (retryCount < maxRetries) {
-      retryCount++;
-      console.log(`Yeniden deneme ${retryCount}/${maxRetries}...`);
-      await new Promise(resolve => setTimeout(resolve, 5000)); // 5 saniye bekle
-      return initializeDatabase();
     }
-
-    throw error;
-  }
+  );
 }
 
-// Promise olarak dışa aktar
-module.exports = initializeDatabase();
+// Model tanımlamalarını yükle
+fs.readdirSync(__dirname)
+  .filter(file => {
+    return (
+      file.indexOf('.') !== 0 &&
+      file !== basename &&
+      file.slice(-3) === '.js' &&
+      file.indexOf('.test.js') === -1
+    );
+  })
+  .forEach(file => {
+    const model = require(path.join(__dirname, file))(sequelize, DataTypes);
+    db[model.name] = model;
+  });
+
+// Modeller arası ilişkileri kur
+Object.keys(db).forEach(modelName => {
+  if (db[modelName].associate) {
+    db[modelName].associate(db);
+  }
+});
+
+const initializeDatabase = async () => {
+  let retryCount = 0;
+  const maxRetries = 5;
+
+  while (retryCount < maxRetries) {
+    try {
+      console.log('Veritabanı başlatılıyor...');
+      await sequelize.authenticate();
+      console.log('Veritabanı bağlantısı başarılı.');
+      
+      console.log('Tablolar senkronize ediliyor...');
+      await sequelize.sync({ force: false });
+      console.log('Veritabanı tabloları senkronize edildi.');
+      
+      return db;
+    } catch (error) {
+      retryCount++;
+      console.error('Veritabanı başlatma hatası:', {
+        error: error.message,
+        stack: error.stack,
+        retryCount,
+        config: {
+          env,
+          username: config.username,
+          database: config.database,
+          port: config.port,
+          host: config.host,
+        }
+      });
+
+      if (retryCount < maxRetries) {
+        console.log(`Yeniden deneme ${retryCount}/${maxRetries}...`);
+        await new Promise(resolve => setTimeout(resolve, 5000));
+      } else {
+        throw error;
+      }
+    }
+  }
+};
+
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
+
+module.exports = { db, initializeDatabase, DataTypes }; 
