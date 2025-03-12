@@ -15,37 +15,22 @@ const maxRetries = 5;
 
 async function initializeDatabase() {
   try {
-    if (config.use_env_variable) {
-      const dbUrl = process.env[config.use_env_variable];
-      console.log('Veritabanı URL:', dbUrl);
-      if (!dbUrl) {
-        throw new Error('DATABASE_URL environment variable is not set');
+    console.log('Veritabanı bağlantısı başlatılıyor...', {
+      host: config.host,
+      port: config.port,
+      database: config.database,
+      username: config.username,
+      env: env
+    });
+    
+    sequelize = new Sequelize(config.database, config.username, config.password, {
+      ...config,
+      logging: (msg) => console.log('Sequelize Log:', msg),
+      retry: {
+        max: 3,
+        match: [/Deadlock/i, /Connection lost/i, /ECONNREFUSED/, /ETIMEOUT/],
       }
-      sequelize = new Sequelize(dbUrl, {
-        ...config,
-        logging: console.log,
-        retry: {
-          max: 3,
-          match: [/Deadlock/i, /Connection lost/i, /ECONNREFUSED/, /ETIMEOUT/],
-        }
-      });
-    } else {
-      console.log('Veritabanı bağlantısı başlatılıyor...', {
-        host: config.host,
-        port: config.port,
-        database: config.database,
-        username: config.username
-      });
-      
-      sequelize = new Sequelize(config.database, config.username, config.password, {
-        ...config,
-        logging: console.log,
-        retry: {
-          max: 3,
-          match: [/Deadlock/i, /Connection lost/i, /ECONNREFUSED/, /ETIMEOUT/],
-        }
-      });
-    }
+    });
 
     // Bağlantıyı test et
     await sequelize.authenticate();
@@ -83,12 +68,23 @@ async function initializeDatabase() {
     db.sequelize = sequelize;
     db.Sequelize = Sequelize;
 
+    // Tabloları senkronize et
+    await sequelize.sync();
+    console.log('Veritabanı tabloları senkronize edildi.');
+
     return db;
   } catch (error) {
     console.error('Veritabanı başlatma hatası:', {
       error: error.message,
       stack: error.stack,
-      retryCount
+      retryCount,
+      config: {
+        host: config.host,
+        port: config.port,
+        database: config.database,
+        username: config.username,
+        env: env
+      }
     });
 
     if (retryCount < maxRetries) {
@@ -102,4 +98,5 @@ async function initializeDatabase() {
   }
 }
 
+// Promise olarak dışa aktar
 module.exports = initializeDatabase();
