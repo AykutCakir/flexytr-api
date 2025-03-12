@@ -40,7 +40,7 @@
     }
   },
   "production": {
-    "username": "rdsa",
+    "username": "flexytr_user",
     "password": "FlexyTR2024!",
     "database": "dosofter_envanter",
     "host": "flexytr-db.cjm0e422w027.eu-north-1.rds.amazonaws.com",
