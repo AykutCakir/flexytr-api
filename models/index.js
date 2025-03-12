@@ -70,7 +70,7 @@ async function initializeDatabase() {
 
     // Tabloları senkronize et
     console.log('Tablolar senkronize ediliyor...');
-    await db.sequelize.sync();
+    await sequelize.sync();
     console.log('Veritabanı tabloları senkronize edildi.');
 
     return db;
@@ -100,9 +100,4 @@ async function initializeDatabase() {
 }
 
 // Promise olarak dışa aktar
-const databasePromise = initializeDatabase().catch(error => {
-  console.error('Veritabanı başlatma hatası:', error);
-  process.exit(1);
-});
-
-module.exports = databasePromise;
+module.exports = initializeDatabase();
