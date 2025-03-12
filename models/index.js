@@ -24,12 +24,12 @@ async function initializeDatabase() {
     });
     
     sequelize = new Sequelize(config.database, config.username, config.password, {
-      ...config,
-      logging: (msg) => console.log('Sequelize Log:', msg),
-      retry: {
-        max: 3,
-        match: [/Deadlock/i, /Connection lost/i, /ECONNREFUSED/, /ETIMEOUT/],
-      }
+      host: config.host,
+      port: config.port,
+      dialect: config.dialect,
+      dialectOptions: config.dialectOptions,
+      pool: config.pool,
+      logging: (msg) => console.log('Sequelize Log:', msg)
     });
 
     // Bağlantıyı test et
@@ -69,7 +69,8 @@ async function initializeDatabase() {
     db.Sequelize = Sequelize;
 
     // Tabloları senkronize et
-    await sequelize.sync();
+    console.log('Tablolar senkronize ediliyor...');
+    await db.sequelize.sync();
     console.log('Veritabanı tabloları senkronize edildi.');
 
     return db;
@@ -99,4 +100,9 @@ async function initializeDatabase() {
 }
 
 // Promise olarak dışa aktar
-module.exports = initializeDatabase();
+const databasePromise = initializeDatabase().catch(error => {
+  console.error('Veritabanı başlatma hatası:', error);
+  process.exit(1);
+});
+
+module.exports = databasePromise;
