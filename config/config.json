@@ -1,25 +1,23 @@
 {
   "development": {
     "username": "dosofter_aykutc",
-    "password": "Black61502",
+    "password": "your_password",
     "database": "dosofter_envanter",
     "host": "sql.athena.domainhizmetleri.com",
-    "port": 1433,
     "dialect": "mssql",
+    "port": 1433,
     "dialectOptions": {
       "options": {
-        "encrypt": false,
+        "encrypt": true,
         "trustServerCertificate": true,
-        "enableArithAbort": true,
-        "requestTimeout": 60000,
-        "connectTimeout": 60000,
-        "packetSize": 32768
+        "requestTimeout": 300000,
+        "connectTimeout": 300000
       }
     },
     "pool": {
       "max": 5,
       "min": 0,
-      "acquire": 60000,
+      "acquire": 300000,
       "idle": 10000
     }
   },
@@ -38,25 +36,23 @@
   },
   "production": {
     "username": "dosofter_aykutc",
-    "password": "Black61502",
+    "password": "your_password",
     "database": "dosofter_envanter",
     "host": "sql.athena.domainhizmetleri.com",
-    "port": 1433,
     "dialect": "mssql",
+    "port": 1433,
     "dialectOptions": {
       "options": {
-        "encrypt": false,
+        "encrypt": true,
         "trustServerCertificate": true,
-        "enableArithAbort": true,
-        "requestTimeout": 60000,
-        "connectTimeout": 60000,
-        "packetSize": 32768
+        "requestTimeout": 300000,
+        "connectTimeout": 300000
       }
     },
     "pool": {
       "max": 5,
       "min": 0,
-      "acquire": 60000,
+      "acquire": 300000,
       "idle": 10000
     }
   }
