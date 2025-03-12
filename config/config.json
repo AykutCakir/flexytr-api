@@ -8,17 +8,25 @@
     "port": 1433,
     "dialectOptions": {
       "options": {
-        "encrypt": true,
+        "encrypt": false,
         "trustServerCertificate": true,
+        "enableArithAbort": true,
         "requestTimeout": 300000,
-        "connectTimeout": 300000
+        "connectTimeout": 300000,
+        "packetSize": 32768,
+        "validateBulkLoadParameters": true,
+        "rowCollectionOnRequestCompletion": true
       }
     },
     "pool": {
       "max": 5,
       "min": 0,
       "acquire": 300000,
-      "idle": 10000
+      "idle": 10000,
+      "evict": 60000
+    },
+    "retry": {
+      "max": 5
     }
   },
   "test": {
@@ -43,17 +51,25 @@
     "port": 1433,
     "dialectOptions": {
       "options": {
-        "encrypt": true,
+        "encrypt": false,
         "trustServerCertificate": true,
+        "enableArithAbort": true,
         "requestTimeout": 300000,
-        "connectTimeout": 300000
+        "connectTimeout": 300000,
+        "packetSize": 32768,
+        "validateBulkLoadParameters": true,
+        "rowCollectionOnRequestCompletion": true
       }
     },
     "pool": {
       "max": 5,
       "min": 0,
       "acquire": 300000,
-      "idle": 10000
+      "idle": 10000,
+      "evict": 60000
+    },
+    "retry": {
+      "max": 5
     }
   }
 }
