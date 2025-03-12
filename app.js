@@ -13,12 +13,18 @@ async function startServer() {
     app.use(bodyParser.json());
     app.use(express.json());
 
+    // Sunucuyu başlat (önce)
+    const PORT = process.env.PORT || 10000;
+    const server = app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server ${PORT} portunda çalışıyor (${process.env.NODE_ENV} modu)`);
+    });
+
     // Test endpoint'i
     app.get('/api/test', (req, res) => {
       res.json({ message: 'API bağlantısı başarılı' });
     });
 
-    // Veritabanını başlat
+    // Veritabanını başlat (sonra)
     console.log('Veritabanı başlatılıyor...');
     const db = await initializeDatabase;
     console.log('Veritabanı başlatıldı');
@@ -46,12 +52,6 @@ async function startServer() {
       });
     });
 
-    // Sunucuyu başlat
-    const PORT = process.env.PORT || 10000;
-    const server = app.listen(PORT, '0.0.0.0', () => {
-      console.log(`Server ${PORT} portunda çalışıyor (${process.env.NODE_ENV} modu)`);
-    });
-
     // Graceful shutdown
     process.on('SIGTERM', () => {
       console.log('SIGTERM sinyali alındı. Sunucu kapatılıyor...');
@@ -60,6 +60,8 @@ async function startServer() {
         process.exit(0);
       });
     });
+
+    return server;
 
   } catch (error) {
     console.error('Sunucu başlatma hatası:', {
