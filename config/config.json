@@ -40,8 +40,8 @@
     }
   },
   "production": {
-    "username": "admin",
-    "password": "your_aws_password",
+    "username": "rdsa",
+    "password": "FlexyTR2024!",
     "database": "dosofter_envanter",
     "host": "flexytr-db.cjm0e422w027.eu-north-1.rds.amazonaws.com",
     "dialect": "mssql",
@@ -52,8 +52,7 @@
         "trustServerCertificate": true,
         "enableArithAbort": true,
         "requestTimeout": 300000,
-        "connectTimeout": 300000,
-        "ssl": true
+        "connectTimeout": 300000
       }
     },
     "pool": {
